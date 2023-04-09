@@ -70,15 +70,74 @@ export const loginUser: RequestHandler = async (req, res, next) => {
     return res.status(200).json({ token })
 }
 
-export const getUser: RequestHandler = async (req, res, next) => {
+export const getCurrentUser: RequestHandler = async (req, res, next) => {
     let user: User | null = await verifyUser(req)
 
     // if no user, return a 401 response
     if (!user){return res.status(401).send()}
 
+    let { userId, username, firstName, lastName, email } = user
+
+    res.status(200).json({
+        userId,
+        username,
+        firstName,
+        lastName,
+        email
+    })
+}
+
+export const getUser: RequestHandler = async (req, res, next) => {
+
+    let userId = req.params.id
+    let user: User | null = await User.findByPk(userId)
+
+    if (!user){return res.status(404).send()}
+
     let { username, firstName, lastName, email } = user
 
     res.status(200).json({
+        userId,
+        username,
+        firstName,
+        lastName,
+        email
+    })
+}
+
+export const getUserIdByUsername: RequestHandler = async (req, res, next) => {
+
+    let username = req.params.username
+    let user: User | null = await User.findOne({
+        where: { username: username }
+    })
+
+    if (!user){return res.status(404).send()}
+
+    res.status(200).json(user.userId)
+}
+
+export const editUser: RequestHandler = async (req, res, next) => {
+    let user: User | null = await verifyUser(req)
+
+    // if no user, return a 401 response
+    if (!user){return res.status(401).send()}
+
+    let newUser: User = req.body
+
+    if ( !newUser.userId || !newUser.username || !newUser.email ||
+        !newUser.firstName || !newUser.lastName ) {
+        return res.status(400).send("missing information")
+    }
+
+    let created = await User.update(newUser, {
+        where: { userId: newUser.userId }
+    })
+
+    let { userId, username, firstName, lastName, email } = user
+
+    res.status(200).json({
+        userId,
         username,
         firstName,
         lastName,

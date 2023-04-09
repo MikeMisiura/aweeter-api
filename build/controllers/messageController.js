@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteMessage = exports.updateMessage = exports.getMessage = exports.createMessage = exports.getAllMessages = void 0;
+exports.deleteMessage = exports.updateMessage = exports.getMessage = exports.getUserMessages = exports.createMessage = exports.getAllMessages = void 0;
 const message_1 = require("../models/message");
 const auth_1 = require("../services/auth");
 // import { where } from "sequelize";
@@ -30,6 +30,18 @@ const createMessage = async (req, res, next) => {
     return res.status(201).json(created);
 };
 exports.createMessage = createMessage;
+const getUserMessages = async (req, res, next) => {
+    // find the message that is referenced in the params
+    let userId = req.params.userId;
+    let message = await message_1.Message.findAll({ where: { userId: userId } });
+    // if no message, return 404
+    if (!message) {
+        return res.status(404).json();
+    }
+    // return the found message
+    res.status(200).json(message);
+};
+exports.getUserMessages = getUserMessages;
 const getMessage = async (req, res, next) => {
     // find the message that is referenced in the params
     let messageId = req.params.id;
@@ -77,7 +89,7 @@ const deleteMessage = async (req, res, next) => {
         return res.status(403).send();
     }
     // if message has incomplete information, return 400
-    if (!req.body.message || !messageId || !originalMessage) {
+    if (!messageId || !originalMessage) {
         return res.status(400).send();
     }
     // otherwise delete the message

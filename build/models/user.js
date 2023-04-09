@@ -16,12 +16,12 @@ function UserFactory(sequelize) {
         username: {
             type: sequelize_1.DataTypes.STRING,
             allowNull: false,
-            unique: true
+            // unique: true
         },
         email: {
             type: sequelize_1.DataTypes.STRING,
             allowNull: false,
-            unique: true
+            // unique: true
         },
         password: {
             type: sequelize_1.DataTypes.STRING,
@@ -46,6 +46,7 @@ function UserFactory(sequelize) {
             defaultValue: sequelize_1.DataTypes.NOW,
         }
     }, {
+        indexes: [{ unique: true, fields: ['username', 'email'] }],
         freezeTableName: true,
         tableName: 'users',
         sequelize

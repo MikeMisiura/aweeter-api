@@ -29,6 +29,19 @@ export const createMessage: RequestHandler = async (req, res, next) => {
     return res.status(201).json(created);
 }
 
+export const getUserMessages: RequestHandler = async (req, res, next) => {
+
+    // find the message that is referenced in the params
+    let userId = req.params.userId
+    let message = await Message.findAll({ where: { userId: userId } })
+
+    // if no message, return 404
+    if (!message) { return res.status(404).json() }
+
+    // return the found message
+    res.status(200).json(message)
+}
+
 export const getMessage: RequestHandler = async (req, res, next) => {
 
     // find the message that is referenced in the params
@@ -78,7 +91,7 @@ export const deleteMessage: RequestHandler = async (req, res, next) => {
     if (!user || user.userId != originalMessage?.userId) { return res.status(403).send() }
 
     // if message has incomplete information, return 400
-    if (!req.body.message || !messageId || !originalMessage) { return res.status(400).send() }
+    if ( !messageId || !originalMessage ) { return res.status(400).send() }
 
     // otherwise delete the message
     await Message.destroy({ where: { messageId: messageId } })
